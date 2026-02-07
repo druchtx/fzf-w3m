@@ -17,6 +17,18 @@ get_tmux_option() {
   fi
 }
 
+debug="${TMUX_W3M_DEBUG:-$(get_tmux_option "@fzf_w3m_debug" "0")}"
+debug_log="${TMUX_W3M_DEBUG_LOG:-$(get_tmux_option "@fzf_w3m_debug_log" "/tmp/fzf-w3m.log")}"
+if [[ "$debug" == "1" ]]; then
+  mkdir -p "$(dirname "$debug_log")" 2>/dev/null || true
+  exec 3>>"$debug_log"
+  printf '\n--- %s ---\n' "$(date '+%F %T')" >&3
+  printf 'cmd: %s\n' "$0 $*" >&3
+  printf 'TMUX=%s TMUX_PANE=%s\n' "${TMUX:-}" "${TMUX_PANE:-}" >&3
+  export BASH_XTRACEFD=3
+  set -x
+fi
+
 open_mode="tmux"
 target=""
 mode="${TMUX_W3M_MODE:-pane}"
@@ -184,15 +196,6 @@ else
   esac
 fi
 
-if [[ ${#sources[@]} -eq 0 ]]; then
-  if [[ -n "$fallback" ]]; then
-    open_url "$fallback"
-  else
-    echo "no bookmark files found" >&2
-  fi
-  exit 0
-fi
-
 parse_chromium() {
   local name="$1"
   local file="$2"
@@ -248,17 +251,20 @@ PY
   fi
 }
 
-items="$(
-  for entry in "${sources[@]}"; do
-    name="${entry%%:*}"
-    file="${entry#*:}"
-    if [[ "$name" == "safari" ]]; then
-      parse_safari "$name" "$file"
-    else
-      parse_chromium "$name" "$file"
-    fi
-  done
-)"
+items=""
+if [[ ${#sources[@]} -gt 0 ]]; then
+  items="$(
+    for entry in "${sources[@]}"; do
+      name="${entry%%:*}"
+      file="${entry#*:}"
+      if [[ "$name" == "safari" ]]; then
+        parse_safari "$name" "$file"
+      else
+        parse_chromium "$name" "$file"
+      fi
+    done
+  )"
+fi
 
 fzf_cmd=(
   fzf
