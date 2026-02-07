@@ -269,7 +269,6 @@ fzf_cmd=(
   --preview 'printf "URL: %s\nSource: %s\n" {2} {3}'
   --preview-window="right,${preview_width},wrap,border-left"
   --print-query
-  --exit-0
 )
 
 if [[ -z "$items" ]]; then
