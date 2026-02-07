@@ -18,6 +18,7 @@ get_tmux_option() {
 }
 
 open_mode="tmux"
+target=""
 mode="${TMUX_W3M_MODE:-pane}"
 split="${TMUX_W3M_SPLIT:-$(get_tmux_option "@fzf_w3m_split" "h")}"
 browser="${TMUX_W3M_BOOKMARKS:-$(get_tmux_option "@fzf_w3m_bookmarks" "auto")}"
@@ -46,6 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -p|--pane)
       mode="pane"
+      ;;
+    -t|--target)
+      target="${2:-}"
+      shift
       ;;
     --self|--inplace)
       open_mode="self"
@@ -91,12 +96,24 @@ open_url() {
     exec w3m "${w3m_opts[@]}" "$url"
   fi
   if [[ "$mode" == "window" ]]; then
-    "$script" --window "$url"
+    if [[ -n "$target" ]]; then
+      "$script" --target "$target" --window "$url"
+    else
+      "$script" --window "$url"
+    fi
   else
     if [[ "$split" == "v" ]]; then
-      "$script" --pane --vertical "$url"
+      if [[ -n "$target" ]]; then
+        "$script" --target "$target" --pane --vertical "$url"
+      else
+        "$script" --pane --vertical "$url"
+      fi
     else
-      "$script" --pane --horizontal "$url"
+      if [[ -n "$target" ]]; then
+        "$script" --target "$target" --pane --horizontal "$url"
+      else
+        "$script" --pane --horizontal "$url"
+      fi
     fi
   fi
 }

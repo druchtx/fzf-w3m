@@ -44,6 +44,13 @@ set -g @fzf_w3m_window_key 'B'
 # Split direction: h or v
 set -g @fzf_w3m_split 'h'
 
+# Picker UI: popup or pane
+set -g @fzf_w3m_picker 'popup'
+
+# Popup size (when picker = popup)
+set -g @fzf_w3m_popup_width '80%'
+set -g @fzf_w3m_popup_height '60%'
+
 # Bookmark source: auto|safari|chrome|arc|brave|edge
 set -g @fzf_w3m_bookmarks 'auto'
 

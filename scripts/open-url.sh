@@ -5,6 +5,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 mode="pane"
 split="h"
+target=""
 args=()
 
 w3m_opts=()
@@ -21,6 +22,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -p|--pane)
       mode="pane"
+      ;;
+    -t|--target)
+      target="${2:-}"
+      shift
       ;;
     -v|--vertical)
       split="v"
@@ -70,11 +75,23 @@ for part in "${cmd_parts[@]}"; do
  done
 
 if [[ "$mode" == "window" ]]; then
-  tmux new-window -n "w3m" "$cmd"
+  if [[ -n "$target" ]]; then
+    tmux new-window -t "$target" -n "w3m" "$cmd"
+  else
+    tmux new-window -n "w3m" "$cmd"
+  fi
 else
   if [[ "$split" == "v" ]]; then
-    tmux split-window -v "$cmd"
+    if [[ -n "$target" ]]; then
+      tmux split-window -t "$target" -v "$cmd"
+    else
+      tmux split-window -v "$cmd"
+    fi
   else
-    tmux split-window -h "$cmd"
+    if [[ -n "$target" ]]; then
+      tmux split-window -t "$target" -h "$cmd"
+    else
+      tmux split-window -h "$cmd"
+    fi
   fi
 fi
