@@ -252,19 +252,28 @@ if [[ -z "$items" ]]; then
   exit 0
 fi
 
+fzf_cmd=(
+  fzf
+  --prompt="$prompt"
+  --delimiter=$'\t'
+  --with-nth=1
+  --nth=1,2
+  --preview 'printf "URL: %s\nSource: %s\n" {2} {3}'
+  --preview-window="right,${preview_width},wrap,border-left"
+  --print-query
+  --exit-0
+)
+
+if [[ -n "$fzf_opts_str" ]]; then
+  fzf_cmd+=("${fzf_opts[@]}")
+fi
+
+if [[ -n "$fallback" ]]; then
+  fzf_cmd+=(--query "$fallback")
+fi
+
 selection="$(
-  printf '%s\n' "$items" | \
-    FZF_DEFAULT_OPTS="" fzf \
-      --prompt="$prompt" \
-      --delimiter=$'\t' \
-      --with-nth=1 \
-      --nth=1,2 \
-      --preview 'printf "URL: %s\nSource: %s\n" {2} {3}' \
-      --preview-window="right,${preview_width},wrap,border-left" \
-      --print-query \
-      --exit-0 \
-      "${fzf_opts[@]}" \
-      ${fallback:+--query "$fallback"}
+  printf '%s\n' "$items" | FZF_DEFAULT_OPTS="" "${fzf_cmd[@]}"
 )" || true
 
 query="$(printf '%s\n' "$selection" | sed -n '1p')"
