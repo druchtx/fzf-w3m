@@ -260,15 +260,6 @@ items="$(
   done
 )"
 
-if [[ -z "$items" ]]; then
-  if [[ -n "$fallback" ]]; then
-    open_url "$fallback"
-  else
-    echo "no bookmarks available" >&2
-  fi
-  exit 0
-fi
-
 fzf_cmd=(
   fzf
   --prompt="$prompt"
@@ -281,6 +272,9 @@ fzf_cmd=(
   --exit-0
 )
 
+if [[ -z "$items" ]]; then
+  fzf_cmd+=(--header "No bookmarks found. Type URL and press Enter")
+fi
 if [[ -n "$fzf_opts_str" ]]; then
   fzf_cmd+=("${fzf_opts[@]}")
 fi
@@ -290,7 +284,11 @@ if [[ -n "$fallback" ]]; then
 fi
 
 selection="$(
-  printf '%s\n' "$items" | FZF_DEFAULT_OPTS="" "${fzf_cmd[@]}"
+  if [[ -n "$items" ]]; then
+    printf '%s\n' "$items" | FZF_DEFAULT_OPTS="" "${fzf_cmd[@]}"
+  else
+    FZF_DEFAULT_OPTS="" "${fzf_cmd[@]}" < /dev/null
+  fi
 )" || true
 
 query="$(printf '%s\n' "$selection" | sed -n '1p')"
