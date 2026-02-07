@@ -17,6 +17,12 @@ Browse bookmarks inside tmux with fzf and open in w3m.
 - python3 (for Safari bookmarks)
 
 ## Install (TPM)
+GitHub:
+
+```
+set -g @plugin 'druchtx/fzf-w3m'
+```
+
 Local repo:
 
 ```
