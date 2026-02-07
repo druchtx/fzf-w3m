@@ -21,7 +21,7 @@ open_mode="tmux"
 mode="${TMUX_W3M_MODE:-pane}"
 split="${TMUX_W3M_SPLIT:-$(get_tmux_option "@fzf_w3m_split" "h")}"
 browser="${TMUX_W3M_BOOKMARKS:-$(get_tmux_option "@fzf_w3m_bookmarks" "auto")}"
-prompt="${TMUX_W3M_PROMPT:-$(get_tmux_option "@fzf_w3m_prompt" "bookmark> ")}"
+prompt="${TMUX_W3M_PROMPT:-$(get_tmux_option "@fzf_w3m_prompt" "open> ")}"
 preview_width="${TMUX_W3M_PREVIEW_WIDTH:-$(get_tmux_option "@fzf_w3m_preview_width" "60%")}"
 fzf_opts_str="${TMUX_W3M_FZF_OPTS:-$(get_tmux_option "@fzf_w3m_fzf_opts" "")}" 
 
