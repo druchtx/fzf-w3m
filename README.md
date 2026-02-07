@@ -48,7 +48,7 @@ set -g @fzf_w3m_split 'h'
 set -g @fzf_w3m_bookmarks 'auto'
 
 # Prompt text
-set -g @fzf_w3m_prompt 'open> '
+set -g @fzf_w3m_prompt 'search> '
 
 # Preview width
 set -g @fzf_w3m_preview_width '60%'
