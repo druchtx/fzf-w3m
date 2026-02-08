@@ -41,6 +41,10 @@ Then reload tmux and install plugins with `prefix + I`.
 set -g @fzf_w3m_pane_key 'b'
 set -g @fzf_w3m_window_key 'B'
 
+# Copy-mode URL open keys (copy-mode-vi)
+set -g @fzf_w3m_copy_pane_key 'o'
+set -g @fzf_w3m_copy_window_key 'O'
+
 # Split direction: h or v
 set -g @fzf_w3m_split 'h'
 
