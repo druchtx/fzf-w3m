@@ -68,6 +68,15 @@ if [[ -z "${TMUX:-}" ]]; then
   exec w3m "${w3m_opts[@]}" "$url"
 fi
 
+if [[ -n "$target" && "$mode" == "window" ]]; then
+  if [[ "$target" =~ ^%[0-9]+$ ]]; then
+    session_target="$(tmux display-message -p -t "$target" '#{session_id}' 2>/dev/null || true)"
+    if [[ -n "$session_target" ]]; then
+      target="$session_target"
+    fi
+  fi
+fi
+
 cmd_parts=(w3m "${w3m_opts[@]}" "$url")
 cmd=""
 for part in "${cmd_parts[@]}"; do

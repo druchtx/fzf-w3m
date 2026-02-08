@@ -20,9 +20,11 @@ debug_log="$(get_tmux_option "@fzf_w3m_debug_log" "/tmp/fzf-w3m.log")"
 if [[ "$debug" == "1" ]]; then
   mkdir -p "$(dirname "$debug_log")" 2>/dev/null || true
   exec 3>>"$debug_log"
+  exec 2>>"$debug_log"
   printf '\n--- %s ---\n' "$(date '+%F %T')" >&3
   printf 'cmd: %s\n' "$0 $*" >&3
   printf 'TMUX=%s TMUX_PANE=%s\n' "${TMUX:-}" "${TMUX_PANE:-}" >&3
+  export PS4='+${BASH_SOURCE}:${LINENO}: '
   export BASH_XTRACEFD=3
   set -x
 fi
@@ -60,19 +62,19 @@ while [[ $# -gt 0 ]]; do
 
 picker="${TMUX_W3M_PICKER:-$(get_tmux_option "@fzf_w3m_picker" "popup")}"
 split="${TMUX_W3M_SPLIT:-$(get_tmux_option "@fzf_w3m_split" "h")}"
-popup_w="${TMUX_W3M_POPUP_WIDTH:-$(get_tmux_option "@fzf_w3m_popup_width" "80%")}"
-popup_h="${TMUX_W3M_POPUP_HEIGHT:-$(get_tmux_option "@fzf_w3m_popup_height" "60%")}"
+popup_w="${TMUX_W3M_POPUP_WIDTH:-$(get_tmux_option "@fzf_w3m_popup_width" "70%")}"
+popup_h="${TMUX_W3M_POPUP_HEIGHT:-$(get_tmux_option "@fzf_w3m_popup_height" "80%")}"
 
-open_cmd="$SCRIPT_DIR/open-bookmark.sh"
+open_cmd=("$SCRIPT_DIR/open-bookmark.sh")
 
 if [[ -n "$target" ]]; then
-  open_cmd+=" --target $target"
+  open_cmd+=(--target "$target")
 fi
 
 if [[ "$mode" == "window" ]]; then
-  open_cmd+=" --window"
+  open_cmd+=(--window)
 else
-  open_cmd+=" --pane"
+  open_cmd+=(--pane)
 fi
 
 has_popup=0
@@ -81,18 +83,14 @@ if tmux list-commands 2>/dev/null | grep -q '^display-popup'; then
 fi
 
 if [[ "$picker" == "popup" && $has_popup -eq 1 ]]; then
-  if tmux display-popup -E -w "$popup_w" -h "$popup_h" "$open_cmd"; then
+  if tmux display-popup -E -w "$popup_w" -h "$popup_h" "${open_cmd[@]}"; then
     exit 0
   fi
 fi
 
-# Fallback: open picker in pane/window directly
-if [[ "$mode" == "window" ]]; then
-  tmux new-window -c "$cwd" "$open_cmd --self"
+# Fallback: open picker in a split (so selection can open window if requested)
+if [[ "$split" == "v" ]]; then
+  tmux split-window -v -c "$cwd" "${open_cmd[@]}" --self
 else
-  if [[ "$split" == "v" ]]; then
-    tmux split-window -v -c "$cwd" "$open_cmd --self"
-  else
-    tmux split-window -h -c "$cwd" "$open_cmd --self"
-  fi
+  tmux split-window -h -c "$cwd" "${open_cmd[@]}" --self
 fi
